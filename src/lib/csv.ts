@@ -4,7 +4,7 @@ export const SALES_HEADERS = [
   "Invoice Date", "Invoice Type", "Invoice Number", "Customer", "Cust Type", "Sales Person", "SKU", "Vintage",
   "Supplier", "Producer", "Selection", "Volume", "Quantity", "Item Price", "Total Price",
 ];
-export const INVOICE_TYPES = ["Invoice", "Credit Invoice", "Sample Invoice"];
+export const INVOICE_TYPES = ["Invoice", "Credit Invoice", "Sample Invoice", "Sample Credit Invoice"];
 
 const MAX_ERRORS = 20;
 
@@ -76,14 +76,18 @@ export function parseSalesCsv(text: string): Parsed<(string | null)[]> {
   return { rows: errors.length ? [] : rows, errors };
 }
 
-// Finds the DBA Name and City columns by header; other columns are ignored.
+// Finds the DBA Name and City (or Ship City) columns by header; other columns are ignored.
 export function parseContactsCsv(text: string): Parsed<[string, string | null]> & { skipped: number } {
   const { header, lines, errors } = readCsv(text);
   const lower = header.map((h) => h.toLowerCase());
   const nameCol = lower.indexOf("dba name");
-  const cityCol = lower.indexOf("city");
+  const cityCol = lower.includes("city") ? lower.indexOf("city") : lower.indexOf("ship city");
   if (nameCol < 0 || cityCol < 0) {
-    return { rows: [], skipped: 0, errors: [`The file needs "DBA Name" and "City" columns. Found: ${header.join(", ")}`] };
+    return {
+      rows: [],
+      skipped: 0,
+      errors: [`The file needs "DBA Name" and "City" or "Ship City" columns. Found: ${header.join(", ")}`],
+    };
   }
   const rows: [string, string | null][] = [];
   let skipped = 0;

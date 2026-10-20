@@ -36,10 +36,12 @@ automatically when the app starts.
 
 ## Using it
 
-1. **Upload sales.** Export any date range and upload it. Every sales row between the file's first and last
-   Invoice Date is replaced by the file in one transaction, so overlapping or repeated uploads are safe.
-2. **Upload contacts.** Upload the Company Contacts export (needs DBA Name and City columns). It replaces the
-   previous contacts.
+1. **Upload sales and samples.** Export any date range of the sales export or the samples export and upload it
+   on the same page. A file replaces every row of its own kind between its first and last Invoice Date, in one
+   transaction: a sales export replaces sales and credits, a samples export replaces samples. Overlapping or
+   repeated uploads are safe.
+2. **Upload contacts.** Upload the Company Contacts export (needs DBA Name and City or Ship City columns). It
+   replaces the previous contacts.
 3. **Review names.** Customer names that don't match a contact's DBA Name are listed by trailing-12-month revenue.
    Link each to an account or contact, or create an account.
 4. **Regions.** Map each city to a region. Unmapped cities count as Other.
@@ -53,11 +55,14 @@ automatically when the app starts.
 - Accounts come from Company Contacts. A Customer name whose key equals a contact DBA Name's key becomes (or joins)
   that account automatically. Anything else waits in the review queue; nothing is merged on a guess.
 - Contacts are the source of truth for city. When a DBA Name appears more than once, its most common city wins.
-- Revenue is the sum of Total Price over `Invoice` and `Credit Invoice` rows. `Sample Invoice` rows are stored but
-  never count as revenue, and samples with no Customer are kept without an account.
+- Revenue is the sum of Total Price over `Invoice` and `Credit Invoice` rows. `Sample Invoice` and
+  `Sample Credit Invoice` rows are stored but never count as revenue, and samples with no Customer are kept
+  without an account.
 - "Corporate" is an inactive house rep, so chain accounts sold under Corporate get no weekly list until someone
   overrides them to a real rep.
-- All windows count back from the latest Invoice Date loaded, not today.
+- All windows count back from the latest sale or credit Invoice Date loaded, not today. Samples don't move it.
+- Default regions: the six region cities, Northshore towns (St. Tammany and Tangipahoa), and the inner suburbs of
+  Baton Rouge and Lafayette. Everything else is Other until mapped on the Regions page.
 
 ## Checking the data
 
@@ -107,4 +112,6 @@ Leadership ruled out keeping sales data in Supabase, so the stack moved to self-
 | Vercel Cron, Resend           | Not needed until Phase 2; to be decided                             |
 
 Other Phase 0 decisions: accounts are created from Company Contacts; "Corporate" is an inactive house rep; an
-account with no sales in the last 12 months gets its rep from all loaded history instead.
+account with no sales in the last 12 months gets its rep from all loaded history instead. Samples come in their
+own export rather than the sales file, so each upload replaces only its own kind of row, and the as-of date
+ignores samples.

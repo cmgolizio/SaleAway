@@ -47,14 +47,23 @@ export async function uploadSales(_prev: ActionResult, formData: FormData): Prom
 
   try {
     const [{ result }] = await query<{
-      result: { date_from: string; date_to: string; inserted: number; deleted: number; unmatched: number };
+      result: {
+        date_from: string;
+        date_to: string;
+        inserted: number;
+        deleted: number;
+        has_sales: boolean;
+        has_samples: boolean;
+        unmatched: number;
+      };
     }>("select import_sales($1, $2::json) as result", [file.name, JSON.stringify(rows)]);
     revalidatePath("/", "layout");
+    const kind = [result.has_sales && "sale and credit", result.has_samples && "sample"].filter(Boolean).join(" and ");
     return {
       ok: true,
       message:
         `Loaded ${result.inserted.toLocaleString()} rows for ${result.date_from} to ${result.date_to}, ` +
-        `replacing ${result.deleted.toLocaleString()} rows already in that range. ` +
+        `replacing ${result.deleted.toLocaleString()} ${kind} rows already in that range. ` +
         `${result.unmatched.toLocaleString()} Customer names are waiting for review.`,
     };
   } catch (err) {

@@ -7,7 +7,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <>
       <nav>
         <Link href="/">Status</Link>
-        <Link href="/upload/sales">Upload sales</Link>
+        <Link href="/upload/sales">Upload sales or samples</Link>
         <Link href="/upload/contacts">Upload contacts</Link>
         <Link href="/review">Review names</Link>
         <Link href="/regions">Regions</Link>

@@ -2,8 +2,11 @@
 -- Run: psql "$DATABASE_URL" -f verify/phase0.sql
 -- With Docker: docker compose exec -T db psql -U saleaway saleaway < verify/phase0.sql
 
-\echo '1. Sales rows (must equal the CSV data rows, i.e. lines minus the header)'
-select count(*) as sales_rows from sales;
+\echo '1. Rows by kind (each must equal its export''s data rows, i.e. lines minus the header)'
+select case when is_revenue_type(invoice_type) then 'sales and credits' else 'samples' end as kind, count(*) as rows
+from sales
+group by 1
+order by 1;
 
 \echo '2. Fingerprint (run before and after re-uploading the same file; nothing may change)'
 select count(*) as rows, sum(total_price) as total_price, sum(quantity) as quantity, md5(string_agg(line, E'\n' order by line collate "C")) as content_hash

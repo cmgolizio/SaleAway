@@ -8,8 +8,8 @@ export default async function UploadContactsPage() {
     <>
       <h1>Upload Company Contacts export</h1>
       <p>
-        The file replaces all contacts. It needs DBA Name and City columns; other columns are ignored. Customer names that
-        match a DBA Name become accounts with that city.
+        The file replaces all contacts. It needs DBA Name and City (or Ship City) columns; other columns are ignored.
+        Customer names that match a DBA Name become accounts with that city.
       </p>
       <ActionForm action={uploadContacts} submitLabel="Upload">
         <input name="file" type="file" accept=".csv,text/csv" required />
